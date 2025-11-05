@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Rocket Blueprint — Interactive Home</title>
+<style>
+  /* ===== Base tokens (overridden by section-level CSS variables) ===== */
+  :root{
+    --ink:#eef3f8; --muted:#b6c2d1;
+    --glass-bg: rgba(255,255,255,.08);
+    --glass-brd: rgba(255,255,255,.16);
+    --velvet-blur: 40px;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+    color:var(--ink);
+    background:#0b0e14;
+    overflow-x:hidden;
+    scroll-behavior:smooth;
+  }
+
+  /* ===== App header / controls ===== */
+  header{
+    position:fixed; z-index:50; inset:auto 0 0 0; top:0;
+    display:flex; align-items:center; justify-content:space-between;
+    gap:16px; padding:14px 18px;
+    background:linear-gradient(180deg, rgba(0,0,0,.45), rgba(0,0,0,0));
+    pointer-events:none;
+  }
+  .brand{pointer-events:auto; font-weight:800; letter-spacing:.6px; padding:8px 12px; border-radius:10px;
+    background:rgba(0,0,0,.35); border:1px solid rgba(255,255,255,.12)}
+  .controls{pointer-events:auto; display:flex; gap:10px; align-items:center}
+  select,button{
+    appearance:none; font-size:.95rem; color:var(--ink);
+    background:var(--glass-bg); border:1px solid var(--glass-brd);
+    padding:10px 14px; border-radius:12px; backdrop-filter: blur(10px);
+    cursor:pointer;
+  }
+  .hint{display:none}
+  @media (min-width:900px){ .hint{display:inline; opacity:.8; font-size:.88rem; color:var(--muted)} }
+
+  /* ===== Scroll container & full panels ===== */
+  main{
+    height:100vh; overflow-y:auto; scroll-snap-type:y mandatory;
+  }
+  section.panel{
+    position:relative; height:100vh; scroll-snap-align:start;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding: clamp(18px,4vw,56px);
+    background: radial-gradient(1200px 800px at 15% 0%, var(--bg1) 0%, var(--bg2) 60%) fixed;
+    background-size:140% 140%;
+    animation: velvet 20s ease-in-out infinite alternate;
+  }
+  @keyframes velvet{0%{background-position:0% 0%}100%{background-position:100% 60%}}
+
+  /* Halo glow that follows pointer */
+  .glow{
+    position:absolute; width:72vmin; height:72vmin; left:50%; top:10%;
+    transform:translateX(-50%);
+    background: radial-gradient(50% 50% at 50% 50%, var(--halo) 36%, transparent 60%);
+    filter: blur(60px) saturate(115%);
+    opacity:.18; pointer-events:none; transition:transform 2s ease, opacity .8s ease;
+  }
+
+  /* Content card */
+  .card{
+    position:relative; z-index:2;
+    width:min(1100px, 95vw);
+    border-radius:22px; padding: clamp(24px, 5vw, 56px);
+    background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+    border:1px solid rgba(255,255,255,.16);
+    box-shadow: 0 24px 80px rgba(0,0,0,.45);
+    backdrop-filter: blur(var(--velvet-blur)) saturate(120%);
+  }
+  .overline{
+    display:inline-block; padding:6px 12px; border-radius:999px;
+    border:1px solid rgba(255,255,255,.16); background:rgba(255,255,255,.06);
+    font-size:.8rem; letter-spacing:.4px; margin-bottom:10px;
+  }
+  h1{font-size: clamp(2rem, 6.2vw, 4.6rem); line-height:1.04; margin:0 0 10px}
+  .sub{color:var(--muted); max-width:900px; font-size: clamp(1rem, 2.1vw, 1.15rem)}
+  .meta{margin-top:12px; color:var(--muted); font-size:.92rem}
+  .swatches{display:grid; grid-template-columns: repeat(6, minmax(120px, 1fr)); gap:12px; margin-top:22px}
+  .swatch{height:110px; border-radius:14px; box-shadow:0 16px 44px rgba(0,0,0,.4); position:relative; overflow:hidden}
+  .chip{position:absolute; left:8px; bottom:8px; background:rgba(0,0,0,.42); color:#fff; border:1px solid rgba(255,255,255,.16);
+        padding:6px 10px; border-radius:10px; font-size:.8rem; backdrop-filter: blur(3px)}
+  .role{font-weight:700; letter-spacing:.3px; margin-right:6px}
+  .hex{opacity:.9; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;}
+
+  /* Chat overlay */
+  .chat{
+    position:fixed; left:50%; bottom:24px; transform:translateX(-50%);
+    width:min(920px, 94vw); z-index:60;
+    display:flex; gap:10px; align-items:center;
+    background:var(--glass-bg); border:1px solid var(--glass-brd);
+    border-radius:16px; padding:10px 12px; backdrop-filter: blur(16px) saturate(120%);
+    box-shadow: 0 10px 40px rgba(0,0,0,.45);
+  }
+  .chat input{flex:1; background:transparent; border:none; color:var(--ink); font-size:1rem; outline:none}
+  .chat button{
+    background:linear-gradient(180deg, var(--accent), color-mix(in srgb, var(--accent) 70%, #000));
+    border:none; color:#fff; padding:10px 16px; border-radius:12px; font-weight:700; cursor:pointer;
+    box-shadow:0 10px 30px color-mix(in srgb, var(--accent) 28%, #000);
+  }
+  .thread{position:fixed; right:18px; bottom:86px; width:min(360px, 92vw);
+          background:var(--glass-bg); border:1px solid var(--glass-brd); border-radius:14px; padding:10px;
+          backdrop-filter: blur(12px); box-shadow: 0 10px 36px rgba(0,0,0,.45); max-height:42vh; overflow:auto; display:none}
+  .msg{margin:6px 0; font-size:.93rem; line-height:1.45}
+  .me{opacity:.9}
+  .bp{color:#e9f2ff}
+  .tiny{font-size:.8rem; opacity:.8}
+
+  /* Scroll hints */
+  .hint-keys{position:fixed; bottom:24px; right:24px; z-index:55; color:var(--muted); font-size:.9rem; display:none}
+  @media (min-width:1000px){ .hint-keys{display:block} }
+
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">ROCKET BLUEPRINT</div>
+  <div class="controls">
+    <select id="jump">
+      <!-- options filled by JS -->
+    </select>
+    <button id="reid">Designer Mode: Reid Hoffman</button>
+    <span class="hint">Scroll or use the dropdown to jump sections. Chat lives bottom center.</span>
+  </div>
+</header>
+
+<main id="viewport">
+  <!-- Sections are injected by JS from THEME data -->
+</main>
+
+<div class="chat">
+  <input id="chatInput" placeholder="Talk to Blueprint… (try: “Recommend a theme for enterprise trust.”)" />
+  <button id="sendBtn">Send</button>
+</div>
+<div class="thread" id="thread"></div>
+<div class="hint-keys">PgUp / PgDn or Mouse Wheel to navigate</div>
+
+<script>
+/* ===========================
+   20 Section Themes (unique looks)
+   Each theme controls gradient, halo, palette, copy, and “Inspired by …”
+=========================== */
+const THEMES = [
+ {id:1,  name:"Celestial Clarity",    insp:"Inspired by Massimo Vignelli",
+  bg1:"#1e2430", bg2:"#2e4b8c", halo:"#3C6EB3",
+  primary:"#2A2F3A", secondary:"#3C6EB3", accent:"#E9863D",
+  s1:"#7C889B", s2:"#AFC3DB", s3:"#EEF3F8",
+  title:"Calm precision with a spark of propulsion.",
+  desc:"Night-graphite and blueprint focus. Composed, modern, quietly powerful."},
+
+ {id:2,  name:"Ignition Calm",        insp:"Inspired by Dieter Rams",
+  bg1:"#181c23", bg2:"#3e7cc8", halo:"#3F7CC8",
+  primary:"#1F2430", secondary:"#3F7CC8", accent:"#D89A2A",
+  s1:"#6D7587", s2:"#9FB2CE", s3:"#E8EEF6",
+  title:"Controlled propulsion.", desc:"Premium brass accent for confident CTAs."},
+
+ {id:3,  name:"Human Harmonic",       insp:"Inspired by Paula Scher",
+  bg1:"#222a35", bg2:"#a94f37", halo:"#F07F53",
+  primary:"#27303A", secondary:"#3A7BC0", accent:"#F07F53",
+  s1:"#8AA7BF", s2:"#DEE7F1", s3:"#FFF8F2",
+  title:"Approachable intelligence.", desc:"Structure warmed by empathy."},
+
+ {id:4,  name:"Orbital Ink",          insp:"Inspired by James Turrell",
+  bg1:"#121822", bg2:"#2854a3", halo:"#2F5B9C",
+  primary:"#202531", secondary:"#2F5B9C", accent:"#E57E2A",
+  s1:"#5F6A7F", s2:"#93A7C3", s3:"#E7EEF7",
+  title:"Luminous orbit.", desc:"Graphite orbit with blue highlights."},
+
+ {id:5,  name:"Blueprint Dawn",       insp:"Inspired by Naoto Fukasawa",
+  bg1:"#1e2430", bg2:"#4376b9", halo:"#4D8BD6",
+  primary:"#323844", secondary:"#4D8BD6", accent:"#F3A64C",
+  s1:"#7EA1C8", s2:"#C9DBF2", s3:"#F7FAFF",
+  title:"Optimism through order.", desc:"Bright, modern for onboarding & education."},
+
+ {id:6,  name:"Graphite Aurora",      insp:"Inspired by Olafur Eliasson",
+  bg1:"#10151e", bg2:"#3e6fb0", halo:"#3E6FB0",
+  primary:"#1B2029", secondary:"#3E6FB0", accent:"#F08C2E",
+  s1:"#6A768A", s2:"#A2B6D1", s3:"#EDF3FB",
+  title:"Cinematic depth.", desc:"Case studies and reveals."},
+
+ {id:7,  name:"Signal Brass",         insp:"Inspired by Pentagram",
+  bg1:"#191e25", bg2:"#3b72b9", halo:"#C89B3C",
+  primary:"#242A34", secondary:"#3B72B9", accent:"#C89B3C",
+  s1:"#72809A", s2:"#A9BDD8", s3:"#EFF4FA",
+  title:"Premium resonance.", desc:"Enterprise trust and executive tone."},
+
+ {id:8,  name:"Quiet Velocity",       insp:"Inspired by Neville Brody",
+  bg1:"#171c25", bg2:"#4a86cc", halo:"#4A86CC",
+  primary:"#212734", secondary:"#4A86CC", accent:"#EB7C3E",
+  s1:"#6C7A90", s2:"#9FB4D4", s3:"#E9F1FB",
+  title:"Energy felt, not shown.", desc:"Perfect for product motion."},
+
+ {id:9,  name:"Resonant Night",       insp:"Inspired by Tinker Hatfield",
+  bg1:"#0f1218", bg2:"#356aae", halo:"#356AAE",
+  primary:"#171C25", secondary:"#356AAE", accent:"#D0792E",
+  s1:"#566175", s2:"#8FA4C3", s3:"#E4ECF8",
+  title:"Confidence with gravitas.", desc:"Cinematic hero / investor decks."},
+
+ {id:10, name:"Horizon Focus",        insp:"Inspired by Jony Ive",
+  bg1:"#1c2330", bg2:"#5a98e6", halo:"#5A98E6",
+  primary:"#273142", secondary:"#5A98E6", accent:"#F19D3D",
+  s1:"#7E91AA", s2:"#BDD3F0", s3:"#F2F7FF",
+  title:"Forward-looking clarity.", desc:"Community and education."},
+
+ {id:11, name:"Ocean Focus",          insp:"Inspired by Susan Kare",
+  bg1:"#0f2027", bg2:"#2c5364", halo:"#2E7FA6",
+  primary:"#10212A", secondary:"#2E7FA6", accent:"#58C0D4",
+  s1:"#6B8EA1", s2:"#B5D3DE", s3:"#E9F6FA",
+  title:"Deep calm, high legibility.", desc:"Docs and long-form."},
+
+ {id:12, name:"Cinder Ember",         insp:"Inspired by Bruce Mau",
+  bg1:"#292426", bg2:"#663c2b", halo:"#D36E3C",
+  primary:"#2B2324", secondary:"#754C3B", accent:"#D36E3C",
+  s1:"#8E6C5E", s2:"#C6A99B", s3:"#F4EAE5",
+  title:"Warm ignition on cinder.", desc:"Launches & announcements."},
+
+ {id:13, name:"Emerald Motion",       insp:"Inspired by Issey Miyake",
+  bg1:"#12231c", bg2:"#2a6f4f", halo:"#49A382",
+  primary:"#16241E", secondary:"#2F8461", accent:"#49A382",
+  s1:"#77C1A7", s2:"#C6E7DA", s3:"#EEFAF6",
+  title:"Fresh precision.", desc:"Sustainability/growth narratives."},
+
+ {id:14, name:"Violet Lift",          insp:"Inspired by UX Apple HIG",
+  bg1:"#211f30", bg2:"#685bd0", halo:"#9D89FF",
+  primary:"#1F1A2E", secondary:"#5B52C7", accent:"#9D89FF",
+  s1:"#7F87C8", s2:"#C9CCF5", s3:"#F1F2FF",
+  title:"Inventive & premium.", desc:"R&D and concept labs."},
+
+ {id:15, name:"Copper Orbit",         insp:"Inspired by Barbara Kruger",
+  bg1:"#1c202b", bg2:"#9c6c3d", halo:"#BD804E",
+  primary:"#1F232C", secondary:"#4B607A", accent:"#BD804E",
+  s1:"#7E8DA1", s2:"#BCC9D9", s3:"#F0F4FA",
+  title:"Warm authority.", desc:"Executive and enterprise."},
+
+ {id:16, name:"Daybreak Clarity",     insp:"Inspired by Airbnb Design",
+  bg1:"#252d34", bg2:"#92c4ff", halo:"#6FA6F2",
+  primary:"#2B3440", secondary:"#6FA6F2", accent:"#F1B255",
+  s1:"#A7C9FA", s2:"#DFEBFF", s3:"#FFFFFF",
+  title:"Airy and optimistic.", desc:"Onboarding & education."},
+
+ {id:17, name:"Arc Focus",            insp:"Inspired by Braun",
+  bg1:"#1a232c", bg2:"#5d90e2", halo:"#7BD0FF",
+  primary:"#1E2630", secondary:"#5087E0", accent:"#7BD0FF",
+  s1:"#7FA2D7", s2:"#C7DAFF", s3:"#F1F6FF",
+  title:"Futuristic focus lines.", desc:"Product demos & motion."},
+
+ {id:18, name:"Magenta Resonance",    insp:"Inspired by Jessica Walsh",
+  bg1:"#271a26", bg2:"#8e3d6a", halo:"#E05AA3",
+  primary:"#231722", secondary:"#6E3B8E", accent:"#E05AA3",
+  s1:"#A67CBF", s2:"#E4C7EC", s3:"#FEF0FA",
+  title:"Creative intensity.", desc:"Campaigns & experimental labs."},
+
+ {id:19, name:"Soft Horizon",         insp:"Inspired by Bauhaus",
+  bg1:"#232c40", bg2:"#8790d0", halo:"#AAB7FF",
+  primary:"#242C3E", secondary:"#7E8BD2", accent:"#AAB7FF",
+  s1:"#BFC8F5", s2:"#E3E7FF", s3:"#FFFFFF",
+  title:"Gentle, editorial.", desc:"Essays and interviews."},
+
+ {id:20, name:"Warm Launch",          insp:"Inspired by IDEO",
+  bg1:"#141b1f", bg2:"#ce8639", halo:"#E19A4A",
+  primary:"#1A2026", secondary:"#3F647F", accent:"#E19A4A",
+  s1:"#8FB6D0", s2:"#DDEAF2", s3:"#FFF6EC",
+  title:"Friendly momentum.", desc:"Community & events."}
+];
+
+/* ===== Build DOM ===== */
+const viewport = document.getElementById('viewport');
+const jump = document.getElementById('jump');
+
+THEMES.forEach(t=>{
+  // dropdown
+  const opt = document.createElement('option');
+  opt.value = `sec-${t.id}`;
+  opt.textContent = `${String(t.id).padStart(2,'0')} · ${t.name}`;
+  jump.appendChild(opt);
+
+  // section
+  const sec = document.createElement('section');
+  sec.className = 'panel';
+  sec.id = `sec-${t.id}`;
+  sec.style.setProperty('--bg1', t.bg1);
+  sec.style.setProperty('--bg2', t.bg2);
+  sec.style.setProperty('--halo', t.halo);
+  sec.innerHTML = `
+    <div class="glow"></div>
+    <div class="card">
+      <span class="overline">${String(t.id).padStart(2,'0')} · ${t.name}</span>
+      <h1>${t.title}</h1>
+      <p class="sub">${t.desc}</p>
+      <div class="meta">${t.insp}</div>
+      <div class="swatches">
+        <div class="swatch" style="background:${t.primary}">
+          <div class="chip"><span class="role">Primary</span><span class="hex">${t.primary}</span></div>
+        </div>
+        <div class="swatch" style="background:${t.secondary}">
+          <div class="chip"><span class="role">Secondary</span><span class="hex">${t.secondary}</span></div>
+        </div>
+        <div class="swatch" style="background:${t.accent}">
+          <div class="chip"><span class="role">Accent</span><span class="hex">${t.accent}</span></div>
+        </div>
+        <div class="swatch" style="background:${t.s1}">
+          <div class="chip"><span class="role">Support 1</span><span class="hex">${t.s1}</span></div>
+        </div>
+        <div class="swatch" style="background:${t.s2}">
+          <div class="chip"><span class="role">Support 2</span><span class="hex">${t.s2}</span></div>
+        </div>
+        <div class="swatch" style="background:${t.s3}">
+          <div class="chip"><span class="role">Support 3</span><span class="hex">${t.s3}</span></div>
+        </div>
+      </div>
+    </div>`;
+  viewport.appendChild(sec);
+});
+
+/* ===== Jump control scroll ===== */
+jump.addEventListener('change', e=>{
+  document.getElementById(e.target.value).scrollIntoView({behavior:'smooth', block:'start'});
+});
+
+/* ===== Halo parallax for the active section ===== */
+function parallax(e){
+  const sec = document.elementFromPoint(window.innerWidth/2, window.innerHeight/2)?.closest('.panel');
+  if(!sec) return;
+  const glow = sec.querySelector('.glow');
+  const gx = (e.clientX / window.innerWidth - .5) * 40;
+  const gy = (e.clientY / window.innerHeight - .5) * 20;
+  glow.style.transform = `translateX(-50%) translate(${gx}px, ${gy}px)`;
+}
+document.addEventListener('pointermove', parallax, {passive:true});
+
+/* ===== Chat demo (stubbed suggestions) ===== */
+const sendBtn = document.getElementById('sendBtn');
+const input = document.getElementById('chatInput');
+const thread = document.getElementById('thread');
+function openThread(){ thread.style.display='block'; }
+function addMsg(text, who='bp'){
+  openThread();
+  const div = document.createElement('div');
+  div.className = `msg ${who}`;
+  div.textContent = text;
+  thread.appendChild(div);
+  thread.scrollTop = thread.scrollHeight;
+}
+function blueprintSuggest(text){
+  const t = text.toLowerCase();
+  if(t.includes('enterprise')) return 'Try “Signal Brass” or “Copper Orbit” — executive warmth with trust.';
+  if(t.includes('education') || t.includes('onboard')) return '“Blueprint Dawn” or “Daybreak Clarity” keep things bright and welcoming.';
+  if(t.includes('cinema') || t.includes('hero')) return '“Graphite Aurora” and “Resonant Night” deliver cinematic depth.';
+  if(t.includes('creative')) return '“Magenta Resonance” pairs bold energy with blueprint cool.';
+  return 'For balanced brand presence, start with “Celestial Clarity,” then accent with ignition color at ≤ 10%.';
+}
+sendBtn.addEventListener('click', ()=>{
+  const v = input.value.trim(); if(!v) return;
+  addMsg('You: ' + v, 'me');
+  setTimeout(()=> addMsg('Blueprint: ' + blueprintSuggest(v), 'bp'), 240);
+  input.value='';
+});
+input.addEventListener('keydown', (e)=>{ if(e.key==='Enter') sendBtn.click(); });
+
+/* ===== Designer Mode: Reid Hoffman (playful enhancement) ===== */
+const reidBtn = document.getElementById('reid');
+let reidOn = false;
+reidBtn.addEventListener('click', ()=>{
+  reidOn = !reidOn;
+  reidBtn.textContent = reidOn ? 'Designer Mode: Reid Hoffman (ON)' : 'Designer Mode: Reid Hoffman';
+  document.querySelectorAll('.panel').forEach(p=>{
+    p.style.animationDuration = reidOn ? '28s' : '20s';              // slower, more considered motion
+    p.style.setProperty('--velvet-blur', reidOn ? '48px' : '40px');  // slightly silkier glass
+    const meta = p.querySelector('.meta');
+    if(reidOn && !meta.dataset.rh){
+      meta.dataset.rh = '1';
+      meta.innerHTML += ' · <span class="tiny">Co-designed in Founder Mode</span>';
+    }
+  });
+});
+</script>
+</body>
+</html>

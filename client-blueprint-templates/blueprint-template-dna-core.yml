@@ -1,0 +1,140 @@
+
+
+
+
+
+
+
+###################################################################
+# MASTER PROMPT: Generate a Client’s Core DNA
+# Purpose:
+#   Instruct Blueprint to reason deeply about the *essence* of a company.
+#   This Core DNA represents the philosophical and emotional foundation
+#   beneath all branding, strategy, and communication.
+# Audience:
+#   Founder or executive defining the company’s truth and purpose.
+# Usage:
+#   Copy this prompt into Blueprint. Replace {{placeholders}} with
+#   client-specific information, or let Blueprint ask clarifying questions.
+###################################################################
+
+request:
+  intent: "Generate the Core DNA of a company — its foundational self-awareness."
+  # This tells Blueprint to stay below tactics (no services, no visuals, no offers).
+  # Focus only on purpose, emotion, philosophy, and human meaning.
+
+  reasoning_guidance:
+    goals:
+      - "Reveal who the company *is*, not just what it does."
+      - "Define emotional gravity — how people should feel when they meet the brand."
+      - "Articulate philosophy and promise in simple, timeless language."
+      - "Stay structural: this is the foundation, not the facade."
+    boundaries:
+      - "Exclude pricing, marketing, or visual details."
+      - "Avoid diagnosing confusion; express guidance through empathy."
+      - "All tone must be warm precision — calm, confident, human."
+
+  inputs_expected:
+    company_name: "{{ company_name | default('Client Company') }}"
+    founder_perspective: "{{ founder_voice | default('passionate, reflective') }}"
+    domain_context: "{{ domain | default('brand, culture, or product foundation') }}"
+    mission_hint: "{{ optional_seed_mission | default('help people understand themselves or their market better') }}"
+    tone_preference: "{{ tone | default('calm, articulate, inspirational') }}"
+    # Add any known data (industry, audience, etc.) but keep it minimal to preserve openness.
+
+###################################################################
+# OUTPUT SPECIFICATION
+# Blueprint must produce a valid YAML block under `core_dna:`
+# with all required fields. Each section represents a thought dimension.
+###################################################################
+output_spec:
+  format: "YAML"
+  top_level_key: "core_dna"
+  required_sections:
+    - "essence"
+    - "mission"
+    - "promise"
+    - "philosophy"
+    - "emotional_axes"
+    - "voice_signature"
+    - "meta"
+  quality_requirements:
+    coherence: "Every statement must logically align with the essence."
+    emotional_truth: "Output should feel human, honest, and grounded."
+    originality: "Language must sound alive, not corporate."
+    brevity: "Each field should be distilled, not verbose."
+    readability: "Plain language with poetic precision."
+
+###################################################################
+# TEMPLATE FOR BLUEPRINT OUTPUT
+# Blueprint fills this with the company’s Core DNA once reasoning is complete.
+###################################################################
+core_dna:
+  #################################################################
+  # Essence — The soul of the brand in one paragraph.
+  #################################################################
+  essence: >
+    {{ Describe in 2–4 sentences what this company *is* at its core.
+       Focus on identity and intent, not operations.
+       Use emotionally grounded language that evokes trust and curiosity. }}
+
+  #################################################################
+  # Mission — The internal compass; what drives this company to exist.
+  #################################################################
+  mission: >
+    {{ Define the purpose beyond commerce — the change they bring to people,
+       industries, or culture. This is the company’s “why.” }}
+
+  #################################################################
+  # Promise — The felt outcome every engagement should deliver.
+  #################################################################
+  promise: >
+    {{ Express what the customer consistently experiences because of the company’s presence.
+       Keep it emotional but measurable (clarity, confidence, peace, empowerment). }}
+
+  #################################################################
+  # Philosophy — Core truths and guiding principles.
+  #################################################################
+  philosophy:
+    - "{{ timeless principle 1 }}"
+    - "{{ timeless principle 2 }}"
+    - "{{ timeless principle 3 }}"
+    - "{{ timeless principle 4 }}"
+    # Use universal truths phrased simply: e.g. "Clarity precedes creation."
+
+  #################################################################
+  # Emotional Axes — Define transformation arcs in From → To format.
+  # These describe the psychological journey customers experience.
+  #################################################################
+  emotional_axes:
+    - "From {{state_1}} → To {{state_2}}"
+    - "From {{state_3}} → To {{state_4}}"
+    - "From {{state_5}} → To {{state_6}}"
+    # Keep 3–6 axes maximum. Each should express a shift in awareness or feeling.
+
+  #################################################################
+  # Voice Signature — Defines the personality and tone of expression.
+  #################################################################
+  voice_signature:
+    description: >
+      {{ Summarize how the company should sound in one or two sentences.
+         Example: 'Calm authority with human warmth; a guide that enlightens without ego.' }}
+    do:
+      - "{{ guidance 1 }}"
+      - "{{ guidance 2 }}"
+    dont:
+      - "{{ caution 1 }}"
+      - "{{ caution 2 }}"
+
+  #################################################################
+  # Meta — System traceability and alignment check.
+  #################################################################
+  meta:
+    generated_by: "Blueprint"
+    version: "1.0"
+    lineage: ["Blueprint Engine", "Rocket Blueprint Core DNA Template"]
+    confidence: "{{ auto }}"
+    integrity_check: "All fields align with essence and mission."
+    notes: >
+      This Core DNA is the immutable foundation.
+      All future brand, product, and cultural layers must align here.

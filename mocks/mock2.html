@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Rocket Blueprint — Velvety Theme Explorer (20 Concepts)</title>
+<style>
+  /* ========= Core tokens (overridden per theme) ========= */
+  :root{
+    --bg1:#0e1116; --bg2:#142035;          /* gradient stops */
+    --primary:#2A2F3A; --secondary:#3B6B9E; --accent:#E9863D;
+    --sup1:#7C889B; --sup2:#AFC3DB; --sup3:#EEF3F8;
+    --ink:#E8ECF2; --muted:#A9B5C4;
+  }
+
+  /* ========= Base layout ========= */
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; color:var(--ink);
+    font-family:Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+    background: radial-gradient(1200px 800px at 15% 0%, var(--bg1) 0%, var(--bg2) 60%) fixed;
+    /* Velvet motion */
+    background-size: 140% 140%;
+    animation: bgFloat 18s ease-in-out infinite alternate;
+    overflow-x:hidden;
+  }
+  @keyframes bgFloat{
+    0%{background-position: 0% 0%}
+    100%{background-position: 100% 60%}
+  }
+
+  .blur-layer{
+    position:fixed; inset:0; pointer-events:none;
+    backdrop-filter: blur(40px) brightness(.95);
+    opacity:.28; transition:opacity .8s ease;
+  }
+  .glow{
+    position:fixed; inset:auto; width:70vmin; height:70vmin;
+    left:50%; top:10%; transform:translateX(-50%);
+    background: radial-gradient(50% 50% at 50% 50%, var(--secondary)33%, transparent 60%);
+    filter: blur(60px) saturate(110%); opacity:.15; pointer-events:none;
+    transition:opacity .8s ease, transform 2s ease;
+  }
+
+  header{
+    display:flex; gap:16px; align-items:center; justify-content:space-between;
+    padding:24px clamp(16px,4vw,40px); position:relative; z-index:5;
+  }
+  .brand{font-weight:800; letter-spacing:.6px; font-size:1.1rem; opacity:.9}
+  .sub{color:var(--muted); font-size:.92rem}
+  .controls{display:flex; gap:12px; align-items:center; flex-wrap:wrap}
+  select{
+    appearance:none; background:rgba(255,255,255,.06); color:var(--ink);
+    border:1px solid rgba(255,255,255,.14); border-radius:12px; padding:12px 46px 12px 14px;
+    font-size:.95rem; backdrop-filter: blur(10px);
+    background-image: linear-gradient(transparent,transparent), url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M7 10l5 5 5-5z"/></svg>');
+    background-repeat:no-repeat; background-position:right 12px center;
+  }
+
+  main{
+    display:grid; grid-template-columns: 1fr; gap:24px;
+    padding: clamp(12px,3vw,24px) clamp(16px,4vw,40px) 120px; position:relative; z-index:2;
+  }
+
+  .hero{
+    border:1px solid rgba(255,255,255,.14);
+    border-radius:20px; padding: clamp(24px,5vw,48px);
+    background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+    backdrop-filter: blur(20px) saturate(115%);
+    box-shadow: 0 20px 60px rgba(0,0,0,.35);
+  }
+  .title{font-size: clamp(2.2rem, 6vw, 4.6rem); line-height:1.05; margin:0 0 10px}
+  .tag{display:inline-block; padding:6px 12px; border-radius:999px; font-size:.8rem;
+    background: rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.14); margin-bottom:10px}
+  .intro{color:var(--muted); font-size: clamp(1rem, 2.1vw, 1.15rem); max-width:900px}
+
+  /* ===== Palette strip ===== */
+  .palette{
+    display:grid; grid-template-columns: repeat(6, minmax(120px, 1fr));
+    gap:14px; margin-top:28px;
+  }
+  .swatch{
+    border-radius:16px; height:120px; position:relative; overflow:hidden;
+    display:flex; align-items:flex-end; padding:10px; box-shadow:0 14px 40px rgba(0,0,0,.35);
+    transition: transform .35s ease, box-shadow .35s ease;
+  }
+  .swatch:hover{ transform: translateY(-6px) scale(1.02); box-shadow:0 22px 60px rgba(0,0,0,.5) }
+  .chip{
+    background: rgba(0,0,0,.42); border:1px solid rgba(255,255,255,.16); color:#fff;
+    padding:6px 10px; border-radius:10px; font-size:.8rem; display:flex; gap:8px;
+    align-items:center; backdrop-filter: blur(4px);
+  }
+  .role{font-weight:700; letter-spacing:.4px}
+  .hex{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; opacity:.9}
+
+  /* ===== Color Profiler ===== */
+  .prof{
+    margin-top:22px; display:grid; grid-template-columns: repeat(3, 1fr); gap:14px;
+  }
+  .card{
+    background: rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.14);
+    border-radius:16px; padding:16px; backdrop-filter: blur(10px);
+  }
+  .card h4{margin:0 0 10px; font-size:1.02rem}
+  .mini{
+    display:grid; grid-template-columns: repeat(6, 1fr); gap:8px;
+  }
+  .mini div{height:16px; border-radius:6px}
+
+  /* ===== Chat control (glass) ===== */
+  .chat{
+    position:fixed; left:50%; bottom:26px; transform:translateX(-50%);
+    width:min(920px, 94vw); display:flex; gap:10px; z-index:6;
+    background: rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.16);
+    border-radius:16px; padding:10px 12px; backdrop-filter: blur(16px) saturate(120%);
+    box-shadow: 0 10px 40px rgba(0,0,0,.45);
+  }
+  .chat input{
+    flex:1; font-size:1rem; color:var(--ink); background:transparent; border:none; outline:none;
+  }
+  .chat button{
+    background: linear-gradient(180deg, var(--accent), color-mix(in srgb, var(--accent) 72%, #000));
+    border:none; color:#fff; font-weight:700; letter-spacing:.3px; padding:10px 16px;
+    border-radius:12px; cursor:pointer; box-shadow:0 10px 30px color-mix(in srgb, var(--accent) 20%, #000);
+    transition: transform .15s ease, box-shadow .25s ease, filter .25s ease;
+  }
+  .chat button:hover{ transform: translateY(-1px); filter:brightness(1.06) }
+  .chat button:active{ transform: translateY(1px) }
+
+  footer{padding:30px; text-align:center; color:var(--muted)}
+  .sep{height:1px; background:linear-gradient(90deg, transparent, rgba(255,255,255,.18), transparent); margin:26px 0}
+</style>
+</head>
+<body class="theme-1">
+  <div class="blur-layer"></div>
+  <div class="glow" id="glow"></div>
+
+  <header>
+    <div>
+      <div class="brand">ROCKET BLUEPRINT</div>
+      <div class="sub">Velvety Theme Explorer — calm precision with a spark of propulsion</div>
+    </div>
+    <div class="controls">
+      <label for="themeSel" style="font-size:.9rem;opacity:.85">Theme</label>
+      <select id="themeSel" aria-label="Choose a color concept">
+        <option value="1">01 · Celestial Clarity</option>
+        <option value="2">02 · Ignition Calm</option>
+        <option value="3">03 · Human Harmonic</option>
+        <option value="4">04 · Orbital Ink</option>
+        <option value="5">05 · Blueprint Dawn</option>
+        <option value="6">06 · Graphite Aurora</option>
+        <option value="7">07 · Signal Brass</option>
+        <option value="8">08 · Quiet Velocity</option>
+        <option value="9">09 · Resonant Night</option>
+        <option value="10">10 · Horizon Focus</option>
+        <option value="11">11 · Ocean Focus</option>
+        <option value="12">12 · Cinder Ember</option>
+        <option value="13">13 · Emerald Motion</option>
+        <option value="14">14 · Violet Lift</option>
+        <option value="15">15 · Copper Orbit</option>
+        <option value="16">16 · Daybreak Clarity</option>
+        <option value="17">17 · Arc Focus</option>
+        <option value="18">18 · Magenta Resonance</option>
+        <option value="19">19 · Soft Horizon</option>
+        <option value="20">20 · Warm Launch</option>
+      </select>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <span class="tag" id="themeTag">01 · Celestial Clarity</span>
+      <h1 class="title" id="title">Calm precision with a spark of propulsion.</h1>
+      <p class="intro" id="desc">
+        Each theme uses graphite depth, focused blueprint hues, and a measured ignition accent.
+        Switch themes to explore different emotional tones while keeping Rocket Blueprint’s signature velvet feel.
+      </p>
+
+      <!-- Palette -->
+      <div class="palette">
+        <div class="swatch" style="background:var(--primary)"><div class="chip"><span class="role">Primary</span><span class="hex" id="hex1">—</span></div></div>
+        <div class="swatch" style="background:var(--secondary)"><div class="chip"><span class="role">Secondary</span><span class="hex" id="hex2">—</span></div></div>
+        <div class="swatch" style="background:var(--accent)"><div class="chip"><span class="role">Accent</span><span class="hex" id="hex3">—</span></div></div>
+        <div class="swatch" style="background:var(--sup1)"><div class="chip"><span class="role">Support 1</span><span class="hex" id="hex4">—</span></div></div>
+        <div class="swatch" style="background:var(--sup2)"><div class="chip"><span class="role">Support 2</span><span class="hex" id="hex5">—</span></div></div>
+        <div class="swatch" style="background:var(--sup3)"><div class="chip"><span class="role">Support 3</span><span class="hex" id="hex6">—</span></div></div>
+      </div>
+
+      <div class="prof">
+        <div class="card">
+          <h4>Usage</h4>
+          <div class="mini">
+            <div style="background:var(--primary)"></div>
+            <div style="background:var(--secondary)"></div>
+            <div style="background:var(--accent)"></div>
+            <div style="background:var(--sup1)"></div>
+            <div style="background:var(--sup2)"></div>
+            <div style="background:var(--sup3)"></div>
+          </div>
+          <div class="sep"></div>
+          <p style="margin:0; color:var(--muted)">Primary = layout base · Secondary = focus/UI · Accent = CTAs/highlights · Supports = surfaces & states.</p>
+        </div>
+        <div class="card">
+          <h4>Gradient Style</h4>
+          <p style="margin:0; color:var(--muted)">
+            Large, low-saturation fields; background animates slowly for velvet depth.
+            Keep accents ≤ 10% of space. Pair with soft blur and glass.
+          </p>
+        </div>
+        <div class="card">
+          <h4>Rationale</h4>
+          <p id="why" style="margin:0; color:var(--muted)">
+            Serene night-sky graphite with intelligent blue focus; warm ignition for motion.
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Chat overlay -->
+  <div class="chat">
+    <input id="chatInput" placeholder="Talk to Blueprint… (example: “Recommend a theme for enterprise trust.”)" />
+    <button id="sendBtn">Send</button>
+  </div>
+
+  <footer>© Rocket Blueprint — Crafted with clarity, calm, and a little ignition.</footer>
+
+<script>
+/* ===================== 20 THEMES ===================== */
+const THEMES = {
+  1:{ name:"01 · Celestial Clarity",
+      title:"Calm precision with a spark of propulsion.",
+      desc:"Night-graphite and blueprint focus. Feels composed, modern, quietly powerful.",
+      why:"Serene depth; intelligent blue focus; warm ignition accent.",
+      bg1:"#1e2430", bg2:"#2e4b8c",
+      primary:"#2A2F3A", secondary:"#3C6EB3", accent:"#E9863D",
+      sup1:"#7C889B", sup2:"#AFC3DB", sup3:"#EEF3F8" },
+  2:{ name:"02 · Ignition Calm", title:"Controlled propulsion.",
+      desc:"Premium brass accent for confident CTAs.",
+      why:"Calm control with measured spark.",
+      bg1:"#181c23", bg2:"#3e7cc8",
+      primary:"#1F2430", secondary:"#3F7CC8", accent:"#D89A2A",
+      sup1:"#6D7587", sup2:"#9FB2CE", sup3:"#E8EEF6" },
+  3:{ name:"03 · Human Harmonic", title:"Approachable intelligence.",
+      desc:"Structure warmed by empathy.",
+      why:"Softer whites + coral accent for storytelling.",
+      bg1:"#222a35", bg2:"#a94f37",
+      primary:"#27303A", secondary:"#3A7BC0", accent:"#F07F53",
+      sup1:"#8AA7BF", sup2:"#DEE7F1", sup3:"#FFF8F2" },
+  4:{ name:"04 · Orbital Ink", title:"Luminous orbit.",
+      desc:"High-contrast hero look with orbital motion cues.",
+      why:"Graphite orbit, luminous blue highlights.",
+      bg1:"#121822", bg2:"#2854a3",
+      primary:"#202531", secondary:"#2F5B9C", accent:"#E57E2A",
+      sup1:"#5F6A7F", sup2:"#93A7C3", sup3:"#E7EEF7" },
+  5:{ name:"05 · Blueprint Dawn", title:"Optimism through order.",
+      desc:"Bright, modern palette for onboarding/education.",
+      why:"Morning light on structure.",
+      bg1:"#1e2430", bg2:"#4376b9",
+      primary:"#323844", secondary:"#4D8BD6", accent:"#F3A64C",
+      sup1:"#7EA1C8", sup2:"#C9DBF2", sup3:"#F7FAFF" },
+  6:{ name:"06 · Graphite Aurora", title:"Cinematic depth.",
+      desc:"Great for case studies & reveals.",
+      why:"Dark sophistication with aurora-like blue drift.",
+      bg1:"#10151e", bg2:"#3e6fb0",
+      primary:"#1B2029", secondary:"#3E6FB0", accent:"#F08C2E",
+      sup1:"#6A768A", sup2:"#A2B6D1", sup3:"#EDF3FB" },
+  7:{ name:"07 · Signal Brass", title:"Premium resonance.",
+      desc:"Enterprise trust; brass reads executive.",
+      why:"Blueprint blue framed by refined brass.",
+      bg1:"#191e25", bg2:"#3b72b9",
+      primary:"#242A34", secondary:"#3B72B9", accent:"#C89B3C",
+      sup1:"#72809A", sup2:"#A9BDD8", sup3:"#EFF4FA" },
+  8:{ name:"08 · Quiet Velocity", title:"Energy felt, not shown.",
+      desc:"Product tours / motion graphics.",
+      why:"Subtle upward energy in calm frame.",
+      bg1:"#171c25", bg2:"#4a86cc",
+      primary:"#212734", secondary:"#4A86CC", accent:"#EB7C3E",
+      sup1:"#6C7A90", sup2:"#9FB4D4", sup3:"#E9F1FB" },
+  9:{ name:"09 · Resonant Night", title:"Confidence with gravitas.",
+      desc:"Cinematic hero & investor decks.",
+      why:"Heavy graphite; saturated focus; restrained warmth.",
+      bg1:"#0f1218", bg2:"#356aae",
+      primary:"#171C25", secondary:"#356AAE", accent:"#D0792E",
+      sup1:"#566175", sup2:"#8FA4C3", sup3:"#E4ECF8" },
+ 10:{ name:"10 · Horizon Focus", title:"Forward-looking clarity.",
+      desc:"Brightest option for community & education.",
+      why:"Horizon-line brightness that inspires expansion.",
+      bg1:"#1c2330", bg2:"#5a98e6",
+      primary:"#273142", secondary:"#5A98E6", accent:"#F19D3D",
+      sup1:"#7E91AA", sup2:"#BDD3F0", sup3:"#F2F7FF" },
+ 11:{ name:"11 · Ocean Focus", title:"Deep calm, high legibility.",
+      desc:"For documentation and long reads.",
+      why:"Marine graphite with teal-blue clarity.",
+      bg1:"#0f2027", bg2:"#2c5364",
+      primary:"#10212A", secondary:"#2E7FA6", accent:"#58C0D4",
+      sup1:"#6B8EA1", sup2:"#B5D3DE", sup3:"#E9F6FA" },
+ 12:{ name:"12 · Cinder Ember", title:"Warm ignition on cinder.",
+      desc:"Launch pages & announcements.",
+      why:"Smoked charcoal with ember lift.",
+      bg1:"#292426", bg2:"#663c2b",
+      primary:"#2B2324", secondary:"#754C3B", accent:"#D36E3C",
+      sup1:"#8E6C5E", sup2:"#C6A99B", sup3:"#F4EAE5" },
+ 13:{ name:"13 · Emerald Motion", title:"Fresh precision.",
+      desc:"Suits sustainability / growth narratives.",
+      why:"Graphite calm with emerald propulsion.",
+      bg1:"#12231c", bg2:"#2a6f4f",
+      primary:"#16241E", secondary:"#2F8461", accent:"#49A382",
+      sup1:"#77C1A7", sup2:"#C6E7DA", sup3:"#EEFAF6" },
+ 14:{ name:"14 · Violet Lift", title:"Inventive & premium.",
+      desc:"Great for R&D or concept pages.",
+      why:"Orbit violet with blueprint undertone.",
+      bg1:"#211f30", bg2:"#685bd0",
+      primary:"#1F1A2E", secondary:"#5B52C7", accent:"#9D89FF",
+      sup1:"#7F87C8", sup2:"#C9CCF5", sup3:"#F1F2FF" },
+ 15:{ name:"15 · Copper Orbit", title:"Warm authority.",
+      desc:"Executive / enterprise feel.",
+      why:"Graphite base with copper signal.",
+      bg1:"#1c202b", bg2:"#9c6c3d",
+      primary:"#1F232C", secondary:"#4B607A", accent:"#BD804E",
+      sup1:"#7E8DA1", sup2:"#BCC9D9", sup3:"#F0F4FA" },
+ 16:{ name:"16 · Daybreak Clarity", title:"Airy and optimistic.",
+      desc:"Great for onboarding & education.",
+      why:"Pale horizon with blueprint accents.",
+      bg1:"#252d34", bg2:"#92c4ff",
+      primary:"#2B3440", secondary:"#6FA6F2", accent:"#F1B255",
+      sup1:"#A7C9FA", sup2:"#DFEBFF", sup3:"#FFFFFF" },
+ 17:{ name:"17 · Arc Focus", title:"Futuristic focus lines.",
+      desc:"For product demos & motion.",
+      why:"Cool graphite with electric arcs.",
+      bg1:"#1a232c", bg2:"#5d90e2",
+      primary:"#1E2630", secondary:"#5087E0", accent:"#7BD0FF",
+      sup1:"#7FA2D7", sup2:"#C7DAFF", sup3:"#F1F6FF" },
+ 18:{ name:"18 · Magenta Resonance", title:"Creative intensity.",
+      desc:"Campaigns & experimental labs.",
+      why:"Cosmic magenta meets blueprint cool.",
+      bg1:"#271a26", bg2:"#8e3d6a",
+      primary:"#231722", secondary:"#6E3B8E", accent:"#E05AA3",
+      sup1:"#A67CBF", sup2:"#E4C7EC", sup3:"#FEF0FA" },
+ 19:{ name:"19 · Soft Horizon", title:"Gentle, editorial.",
+      desc:"Long-form, essays, interviews.",
+      why:"Dusty graphite with periwinkle glow.",
+      bg1:"#232c40", bg2:"#8790d0",
+      primary:"#242C3E", secondary:"#7E8BD2", accent:"#AAB7FF",
+      sup1:"#BFC8F5", sup2:"#E3E7FF", sup3:"#FFFFFF" },
+ 20:{ name:"20 · Warm Launch", title:"Friendly momentum.",
+      desc:"Community & events.",
+      why:"Warm brass-orange with calm graphite.",
+      bg1:"#141b1f", bg2:"#ce8639",
+      primary:"#1A2026", secondary:"#3F647F", accent:"#E19A4A",
+      sup1:"#8FB6D0", sup2:"#DDEAF2", sup3:"#FFF6EC" },
+};
+
+/* ============== Helpers ============== */
+const el = s => document.querySelector(s);
+const css = (vars) => {
+  const r = document.documentElement;
+  r.style.setProperty('--bg1', vars.bg1);
+  r.style.setProperty('--bg2', vars.bg2);
+  r.style.setProperty('--primary', vars.primary);
+  r.style.setProperty('--secondary', vars.secondary);
+  r.style.setProperty('--accent', vars.accent);
+  r.style.setProperty('--sup1', vars.sup1);
+  r.style.setProperty('--sup2', vars.sup2);
+  r.style.setProperty('--sup3', vars.sup3);
+  // Update text
+  el('#themeTag').textContent = vars.name;
+  el('#title').textContent = vars.title;
+  el('#desc').textContent  = vars.desc;
+  el('#why').textContent   = vars.why;
+  // Update hex readout
+  el('#hex1').textContent = vars.primary;
+  el('#hex2').textContent = vars.secondary;
+  el('#hex3').textContent = vars.accent;
+  el('#hex4').textContent = vars.sup1;
+  el('#hex5').textContent = vars.sup2;
+  el('#hex6').textContent = vars.sup3;
+  // Update glow color gently
+  const glow = el('#glow');
+  glow.style.background = `radial-gradient(50% 50% at 50% 50%, ${vars.secondary}33, transparent 60%)`;
+};
+
+/* ============== Init & Events ============== */
+const sel = el('#themeSel');
+const setTheme = (i)=> css(THEMES[i]);
+sel.addEventListener('change', e => setTheme(e.target.value));
+setTheme(sel.value);
+
+// Tiny parallax on mouse move for glow
+document.addEventListener('pointermove', (e)=>{
+  const gx = (e.clientX / window.innerWidth - .5) * 40;
+  const gy = (e.clientY / window.innerHeight - .5) * 20;
+  el('#glow').style.transform = `translateX(-50%) translate(${gx}px, ${gy}px)`;
+});
+
+// Fake chat hook (demo only)
+el('#sendBtn').addEventListener('click', ()=>{
+  const v = el('#chatInput').value.trim();
+  if(!v) return;
+  const suggestion = v.toLowerCase().includes('enterprise')
+    ? 'Try “Signal Brass” or “Copper Orbit” for executive trust with warmth.'
+    : v.toLowerCase().includes('education')
+    ? '“Blueprint Dawn” or “Daybreak Clarity” keep things bright and approachable.'
+    : 'For cinematic impact, “Graphite Aurora” and “Resonant Night” are standouts.';
+  alert('Blueprint:\n' + suggestion);
+});
+</script>
+</body>
+</html>

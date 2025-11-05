@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rocket Blueprint — Immersive Color Experience</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:"Inter",system-ui,sans-serif;
+    color:#fff;
+    background:#0b0e14;
+    overflow-x:hidden;
+  }
+  section{
+    position:relative;
+    height:100vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    transition:background 1s ease;
+  }
+  h1{
+    font-size:4rem;
+    font-weight:700;
+    letter-spacing:1px;
+    margin-bottom:0.5rem;
+    text-shadow:0 2px 20px rgba(0,0,0,.5);
+  }
+  p{font-size:1.2rem;max-width:800px;text-align:center;opacity:.9;margin-bottom:2rem}
+  .palette{
+    display:flex;
+    gap:1rem;
+    justify-content:center;
+    flex-wrap:wrap;
+  }
+  .color{
+    width:140px;height:140px;border-radius:16px;box-shadow:0 0 30px rgba(0,0,0,.4);
+    display:flex;flex-direction:column;justify-content:center;align-items:center;
+    color:#fff;font-size:.9rem;transition:transform .4s ease, box-shadow .4s ease;
+  }
+  .color:hover{transform:translateY(-10px) scale(1.05);box-shadow:0 0 40px rgba(0,0,0,.7)}
+  .hex{font-family:monospace;font-size:.8rem;opacity:.8;margin-top:.2rem}
+  .tag{font-weight:600;letter-spacing:.5px}
+  /* motion blur overlay */
+  .blur{
+    position:absolute;inset:0;backdrop-filter:blur(40px) brightness(0.9);
+    opacity:0;transition:opacity 1s ease;
+    pointer-events:none;
+  }
+  section.active .blur{opacity:.4}
+  footer{padding:2rem;text-align:center;font-size:1rem;color:#a0aabb;background:#10141d;}
+</style>
+</head>
+<body>
+
+<!-- Each section has unique palette -->
+<section id="set1" style="background:linear-gradient(120deg,#1e2430,#2e4b8c);">
+  <div class="blur"></div>
+  <h1>Celestial Clarity</h1>
+  <p>Serene depth with intelligent blue focus — calm precision before ignition.</p>
+  <div class="palette">
+    <div class="color" style="background:#2A2F3A"><span class="tag">Primary</span><span class="hex">#2A2F3A</span></div>
+    <div class="color" style="background:#3C6EB3"><span class="tag">Secondary</span><span class="hex">#3C6EB3</span></div>
+    <div class="color" style="background:#E38B3C"><span class="tag">Accent</span><span class="hex">#E38B3C</span></div>
+    <div class="color" style="background:#7C889B"><span class="tag">Support</span><span class="hex">#7C889B</span></div>
+  </div>
+</section>
+
+<section id="set2" style="background:linear-gradient(120deg,#181c23,#3e7cc8);">
+  <div class="blur"></div>
+  <h1>Ignition Calm</h1>
+  <p>Controlled propulsion — quiet confidence with a spark of motion.</p>
+  <div class="palette">
+    <div class="color" style="background:#1F2430"><span class="tag">Primary</span><span class="hex">#1F2430</span></div>
+    <div class="color" style="background:#3F7CC8"><span class="tag">Secondary</span><span class="hex">#3F7CC8</span></div>
+    <div class="color" style="background:#D89A2A"><span class="tag">Accent</span><span class="hex">#D89A2A</span></div>
+    <div class="color" style="background:#9FB2CE"><span class="tag">Support</span><span class="hex">#9FB2CE</span></div>
+  </div>
+</section>
+
+<section id="set3" style="background:linear-gradient(120deg,#222a35,#a94f37);">
+  <div class="blur"></div>
+  <h1>Human Harmonic</h1>
+  <p>Approachable intelligence — structure warmed by empathy.</p>
+  <div class="palette">
+    <div class="color" style="background:#27303A"><span class="tag">Primary</span><span class="hex">#27303A</span></div>
+    <div class="color" style="background:#3A7BC0"><span class="tag">Secondary</span><span class="hex">#3A7BC0</span></div>
+    <div class="color" style="background:#F07F53"><span class="tag">Accent</span><span class="hex">#F07F53</span></div>
+    <div class="color" style="background:#DEE7F1"><span class="tag">Support</span><span class="hex">#DEE7F1</span></div>
+  </div>
+</section>
+
+<section id="set4" style="background:linear-gradient(120deg,#121822,#2854a3);">
+  <div class="blur"></div>
+  <h1>Orbital Ink</h1>
+  <p>Graphite orbit — luminous blues that trace intelligent motion.</p>
+  <div class="palette">
+    <div class="color" style="background:#202531"><span class="tag">Primary</span><span class="hex">#202531</span></div>
+    <div class="color" style="background:#2F5B9C"><span class="tag">Secondary</span><span class="hex">#2F5B9C</span></div>
+    <div class="color" style="background:#E57E2A"><span class="tag">Accent</span><span class="hex">#E57E2A</span></div>
+    <div class="color" style="background:#E7EEF7"><span class="tag">Support</span><span class="hex">#E7EEF7</span></div>
+  </div>
+</section>
+
+<section id="set5" style="background:linear-gradient(120deg,#1e2430,#4376b9);">
+  <div class="blur"></div>
+  <h1>Blueprint Dawn</h1>
+  <p>Morning light on structure — optimism through order.</p>
+  <div class="palette">
+    <div class="color" style="background:#323844"><span class="tag">Primary</span><span class="hex">#323844</span></div>
+    <div class="color" style="background:#4D8BD6"><span class="tag">Secondary</span><span class="hex">#4D8BD6</span></div>
+    <div class="color" style="background:#F3A64C"><span class="tag">Accent</span><span class="hex">#F3A64C</span></div>
+    <div class="color" style="background:#F7FAFF"><span class="tag">Support</span><span class="hex">#F7FAFF</span></div>
+  </div>
+</section>
+
+<section id="set6" style="background:linear-gradient(120deg,#10151e,#3e6fb0);">
+  <div class="blur"></div>
+  <h1>Graphite Aurora</h1>
+  <p>Dark sophistication — blue light drifting like aurora motion.</p>
+  <div class="palette">
+    <div class="color" style="background:#1B2029"><span class="tag">Primary</span><span class="hex">#1B2029</span></div>
+    <div class="color" style="background:#3E6FB0"><span class="tag">Secondary</span><span class="hex">#3E6FB0</span></div>
+    <div class="color" style="background:#F08C2E"><span class="tag">Accent</span><span class="hex">#F08C2E</span></div>
+    <div class="color" style="background:#EDF3FB"><span class="tag">Support</span><span class="hex">#EDF3FB</span></div>
+  </div>
+</section>
+
+<section id="set7" style="background:linear-gradient(120deg,#191e25,#3b72b9);">
+  <div class="blur"></div>
+  <h1>Signal Brass</h1>
+  <p>Blueprint blue framed by refined brass energy — premium resonance.</p>
+  <div class="palette">
+    <div class="color" style="background:#242A34"><span class="tag">Primary</span><span class="hex">#242A34</span></div>
+    <div class="color" style="background:#3B72B9"><span class="tag">Secondary</span><span class="hex">#3B72B9</span></div>
+    <div class="color" style="background:#C89B3C"><span class="tag">Accent</span><span class="hex">#C89B3C</span></div>
+    <div class="color" style="background:#EFF4FA"><span class="tag">Support</span><span class="hex">#EFF4FA</span></div>
+  </div>
+</section>
+
+<section id="set8" style="background:linear-gradient(120deg,#171c25,#4a86cc);">
+  <div class="blur"></div>
+  <h1>Quiet Velocity</h1>
+  <p>Motion through restraint — energy felt, not shown.</p>
+  <div class="palette">
+    <div class="color" style="background:#212734"><span class="tag">Primary</span><span class="hex">#212734</span></div>
+    <div class="color" style="background:#4A86CC"><span class="tag">Secondary</span><span class="hex">#4A86CC</span></div>
+    <div class="color" style="background:#EB7C3E"><span class="tag">Accent</span><span class="hex">#EB7C3E</span></div>
+    <div class="color" style="background:#E9F1FB"><span class="tag">Support</span><span class="hex">#E9F1FB</span></div>
+  </div>
+</section>
+
+<section id="set9" style="background:linear-gradient(120deg,#0f1218,#356aae);">
+  <div class="blur"></div>
+  <h1>Resonant Night</h1>
+  <p>Confidence with gravitas — the stillness of night made luminous.</p>
+  <div class="palette">
+    <div class="color" style="background:#171C25"><span class="tag">Primary</span><span class="hex">#171C25</span></div>
+    <div class="color" style="background:#356AAE"><span class="tag">Secondary</span><span class="hex">#356AAE</span></div>
+    <div class="color" style="background:#D0792E"><span class="tag">Accent</span><span class="hex">#D0792E</span></div>
+    <div class="color" style="background:#E4ECF8"><span class="tag">Support</span><span class="hex">#E4ECF8</span></div>
+  </div>
+</section>
+
+<section id="set10" style="background:linear-gradient(120deg,#1c2330,#5a98e6);">
+  <div class="blur"></div>
+  <h1>Horizon Focus</h1>
+  <p>Forward-looking clarity — horizon-line brightness that inspires expansion.</p>
+  <div class="palette">
+    <div class="color" style="background:#273142"><span class="tag">Primary</span><span class="hex">#273142</span></div>
+    <div class="color" style="background:#5A98E6"><span class="tag">Secondary</span><span class="hex">#5A98E6</span></div>
+    <div class="color" style="background:#F19D3D"><span class="tag">Accent</span><span class="hex">#F19D3D</span></div>
+    <div class="color" style="background:#F2F7FF"><span class="tag">Support</span><span class="hex">#F2F7FF</span></div>
+  </div>
+</section>
+
+<footer>© Rocket Blueprint — Interactive Color Experience</footer>
+
+<script>
+  // Intersection observer adds 'active' to sections in view for blur fade
+  const sections=document.querySelectorAll("section");
+  const opts={threshold:.5};
+  const obs=new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){e.target.classList.add("active");}
+      else{e.target.classList.remove("active");}
+    })
+  },opts);
+  sections.forEach(s=>obs.observe(s));
+
+  // smooth scroll on wheel (optional)
+  document.addEventListener("wheel", e=>{
+    if(e.deltaY>0) window.scrollBy({top:window.innerHeight,behavior:"smooth"});
+    else if(e.deltaY<0) window.scrollBy({top:-window.innerHeight,behavior:"smooth"});
+  },{passive:true});
+</script>
+</body>
+</html>

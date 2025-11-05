@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Rocket Blueprint — Clarity Designs Itself</title>
+<style>
+/* ===========================================================
+   GLOBAL TOKENS
+   =========================================================== */
+:root {
+  --bg1:#1e2430; --bg2:#2e4b8c;
+  --primary:#2A2F3A; --secondary:#3B6B9E; --accent:#E9863D;
+  --sup1:#7C889B; --sup2:#AFC3DB; --sup3:#EEF3F8;
+  --text-primary:#EEF3F8; --text-secondary:#A9B5C4;
+  --glass-bg:rgba(255,255,255,.06); --glass-brd:rgba(255,255,255,.14);
+  --blur:40px;
+  --radius:18px;
+  --shadow:0 20px 60px rgba(0,0,0,.4);
+}
+
+/* ===========================================================
+   GLOBAL RESET / TYPE
+   =========================================================== */
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;scroll-behavior:smooth}
+body{
+  font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+  color:var(--text-primary);
+  background:radial-gradient(1200px 800px at 15% 0%,var(--bg1) 0%,var(--bg2) 60%) fixed;
+  background-size:140% 140%;
+  animation:bgFloat 24s ease-in-out infinite alternate;
+}
+@keyframes bgFloat{0%{background-position:0% 0%}100%{background-position:100% 60%}}
+
+a{color:var(--accent);text-decoration:none}
+h1,h2,h3{font-weight:700;line-height:1.1}
+p{line-height:1.5;color:var(--text-secondary)}
+
+/* ===========================================================
+   COMPONENT — NAVBAR
+   =========================================================== */
+.navbar{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:1rem 2rem;
+  background:rgba(0,0,0,.3);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--glass-brd);
+}
+.navbar__brand{font-weight:800;letter-spacing:.8px}
+.navbar__menu{display:flex;gap:1.4rem;font-size:.95rem}
+.navbar__menu a{opacity:.85;transition:opacity .2s}
+.navbar__menu a:hover{opacity:1}
+
+/* ===========================================================
+   SECTION LAYOUTS
+   =========================================================== */
+.section{scroll-snap-align:start;min-height:100vh;
+  display:flex;flex-direction:column;justify-content:center;align-items:center;
+  padding:6rem 2rem;position:relative;text-align:center}
+.section__inner{
+  max-width:1000px;padding:3rem 2rem;
+  background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));
+  border:1px solid var(--glass-brd);
+  border-radius:var(--radius);
+  backdrop-filter:blur(var(--blur)) saturate(115%);
+  box-shadow:var(--shadow);
+}
+.section__meta{
+  position:absolute;bottom:1rem;right:1.5rem;
+  font-family:"IBM Plex Mono",monospace;font-size:.8rem;
+  opacity:.4
+}
+
+/* ===========================================================
+   COMPONENT — BUTTONS / INPUTS
+   =========================================================== */
+.btn{
+  display:inline-block;padding:.8rem 1.6rem;border:none;
+  border-radius:12px;font-weight:600;cursor:pointer;
+  color:#fff;
+  background:linear-gradient(180deg,var(--accent),color-mix(in srgb,var(--accent) 70%,#000));
+  box-shadow:0 10px 30px color-mix(in srgb,var(--accent) 25%,#000);
+  transition:transform .25s,filter .25s;
+}
+.btn:hover{transform:translateY(-1px);filter:brightness(1.07)}
+.btn:active{transform:translateY(1px)}
+
+.input{
+  background:var(--glass-bg);border:1px solid var(--glass-brd);
+  border-radius:10px;padding:.75rem 1rem;width:100%;
+  color:var(--text-primary);font-size:1rem;
+  backdrop-filter:blur(10px);
+}
+.input::placeholder{color:rgba(255,255,255,.5)}
+
+/* ===========================================================
+   COMPONENT — CHAT
+   =========================================================== */
+.chat{
+  position:fixed;left:50%;bottom:1.5rem;transform:translateX(-50%);
+  display:flex;gap:.6rem;align-items:center;width:min(900px,94%);
+  background:var(--glass-bg);border:1px solid var(--glass-brd);
+  border-radius:16px;padding:.6rem .8rem;
+  backdrop-filter:blur(16px) saturate(120%);box-shadow:0 10px 40px rgba(0,0,0,.45);
+}
+.chat__input{flex:1;border:none;background:transparent;color:var(--text-primary);font-size:1rem;outline:none}
+.chat__send{background:linear-gradient(180deg,var(--accent),color-mix(in srgb,var(--accent) 70%,#000));
+  border:none;border-radius:10px;padding:.6rem 1.4rem;color:#fff;font-weight:700;cursor:pointer}
+
+/* ===========================================================
+   COMPONENT — CARD EXAMPLES
+   =========================================================== */
+.demo-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:1.5rem;margin-top:2rem;
+}
+.card{
+  padding:2rem;border-radius:14px;
+  background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));
+  border:1px solid var(--glass-brd);backdrop-filter:blur(20px);
+  transition:transform .3s;
+}
+.card:hover{transform:translateY(-6px) scale(1.02)}
+
+/* ===========================================================
+   FOOTER
+   =========================================================== */
+.footer{padding:3rem 1rem;text-align:center;font-size:.9rem;color:var(--text-secondary)}
+</style>
+</head>
+<body>
+  <header class="navbar">
+    <div class="navbar__brand">ROCKET BLUEPRINT</div>
+    <nav class="navbar__menu">
+      <a href="#hero">About</a>
+      <a href="#experience">Experience</a>
+      <a href="#themes">Themes</a>
+      <a href="#clients">Clients</a>
+      <a href="#start">Start</a>
+    </nav>
+  </header>
+
+  <main>
+    <!-- HERO -->
+    <section id="hero" class="section">
+      <div class="section__inner">
+        <h1>Clarity Designs Itself</h1>
+        <p>Talk your vision. Watch it appear.</p>
+        <button class="btn" onclick="scrollToNext()">Begin</button>
+      </div>
+      <div class="section__meta">Inspired by Massimo Vignelli</div>
+    </section>
+
+    <!-- EXPERIENCE -->
+    <section id="experience" class="section">
+      <div class="section__inner">
+        <h2>Experience Clarity in Motion</h2>
+        <p>The page you see is alive — gradients drift, glass breathes, and light listens.</p>
+        <div class="demo-grid">
+          <div class="card"><h3>Buttons</h3><button class="btn">Primary Action</button></div>
+          <div class="card"><h3>Inputs</h3><input class="input" placeholder="Type here…" /></div>
+          <div class="card"><h3>Toggle</h3><button class="btn">On / Off</button></div>
+        </div>
+      </div>
+      <div class="section__meta">Inspired by Dieter Rams</div>
+    </section>
+
+    <!-- THEMES -->
+    <section id="themes" class="section">
+      <div class="section__inner">
+        <h2>Instant Theme Transformation</h2>
+        <p>Type your desired mood into chat — within two seconds, Rocket Blueprint will transform everything around you.</p>
+        <button class="btn" onclick="simulateTheme()">Simulate Theme Change</button>
+      </div>
+      <div class="section__meta">Inspired by Olafur Eliasson</div>
+    </section>
+
+    <!-- CLIENTS -->
+    <section id="clients" class="section">
+      <div class="section__inner">
+        <h2>Aligned With Visionaries</h2>
+        <p>Companies and creators who discovered clarity through Rocket Blueprint.</p>
+        <div class="demo-grid">
+          <div class="card"><h3>Client One</h3><p>“Our brand finally feels unified.”</p></div>
+          <div class="card"><h3>Client Two</h3><p>“A visual system that breathes.”</p></div>
+          <div class="card"><h3>Client Three</h3><p>“We don’t design anymore — we align.”</p></div>
+        </div>
+      </div>
+      <div class="section__meta">Inspired by Jessica Walsh</div>
+    </section>
+
+    <!-- CTA -->
+    <section id="start" class="section">
+      <div class="section__inner">
+        <h2>Start Your Blueprint Session</h2>
+        <p>Experience the future of brand alignment. Clarity isn’t designed — it’s awakened.</p>
+        <button class="btn">Start Session</button>
+      </div>
+      <div class="section__meta">Inspired by Reid Hoffman</div>
+    </section>
+  </main>
+
+  <div class="chat">
+    <input class="chat__input" id="chatInput" placeholder="Describe your brand feel…" />
+    <button class="chat__send" onclick="simulateTheme()">Send</button>
+  </div>
+
+  <footer class="footer">© Rocket Blueprint — Form feels. Light thinks.</footer>
+
+<script>
+/* ===========================================================
+   INTERACTION LOGIC
+   =========================================================== */
+function scrollToNext(){
+  const sec=document.querySelector('#experience');
+  sec.scrollIntoView({behavior:'smooth'});
+}
+
+function simulateTheme(){
+  // Simulate AI theme response
+  const themes=[
+    {bg1:'#10151e',bg2:'#3e6fb0',accent:'#F08C2E'},
+    {bg1:'#1c2330',bg2:'#5a98e6',accent:'#F19D3D'},
+    {bg1:'#12231c',bg2:'#2a6f4f',accent:'#49A382'},
+    {bg1:'#271a26',bg2:'#8e3d6a',accent:'#E05AA3'}
+  ];
+  const t=themes[Math.floor(Math.random()*themes.length)];
+  const r=document.documentElement;
+  for(const k in t)r.style.setProperty(`--${k}`,t[k]);
+}
+</script>
+</body>
+</html>

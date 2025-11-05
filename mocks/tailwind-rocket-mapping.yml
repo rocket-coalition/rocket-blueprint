@@ -1,0 +1,477 @@
+blueprint:
+  title: "Tailwind–Daisy Compatible Theming using Rocket Theming"
+  archetype: "Expert Implementation Guide"
+  # Purpose: Make Daisy components render with Rocket’s velvety aesthetic (glass/gradient/40px blur)
+  # while keeping Tailwind utilities for layout and responsiveness.
+
+  objective: >
+    Use DaisyUI for structure and accessibility, Tailwind for layout utilities,
+    and Rocket Theming (variables + overrides) for *all* visual expression.
+    Result: Stock Daisy components (btn, card, input, modal) feel cinematic, tactile, and consistent.
+
+  success_criteria:
+    - "Daisy components inherit Rocket variables (no hard-coded colors)."
+    - "Visual depth comes from Rocket overrides (blur ≥ 40px, glass, layered gradients)."
+    - "One-breath theme switching via CSS variables; no utility color classes for visuals."
+    - "Compiled Tailwind build (no CDN-only Tailwind for production)."
+
+  # =======================
+  # Where you veered (root cause)
+  # =======================
+  anti_patterns_detected:
+    - "Used Tailwind CDN with no build step → input.css and tailwind.config.* were ignored."
+    - "Hard-coded colors in markup (inline style/background classes) → broke theme switching."
+    - "Relied on Tailwind/Daisy default shadows/gradients → flattened Rocket’s ‘velvet’ look."
+    - "Let utility classes define visuals (bg-*, shadow-*, rounded-*) instead of Rocket overrides."
+    - "No Daisy token mapping to Rocket variables (e.g., --p, --a, --b1 weren’t bridged)."
+
+  # =======================
+  # Rocket “Golden Rules”
+  # =======================
+  rocket_rules:
+    - "Tailwind = skeleton; Daisy = component structure; Rocket = visual skin (variables, blur, light, motion)."
+    - "Never hard-code colors in HTML; all visuals must read from CSS variables."
+    - "Never use pure #000 or #fff; always use graphite/toned bases."
+    - "Do not use Tailwind/Daisy utility colors or shadows for aesthetics; override with Rocket classes."
+    - "Compile Tailwind with your input.css and DaisyUI config; do not rely on CDN for themed builds."
+
+  # =======================
+  # Stack + Files
+  # =======================
+  stack:
+    tailwind_version: "4.1"
+    daisyui_version: ">=4.12"
+    files:
+      - "tailwind.config.ts"
+      - "input.css"
+      - "index.html (uses data-theme='rocket')"
+      - "output.css (compiled result)"
+    build_command: "npx tailwindcss -i ./input.css -o ./output.css --watch"
+
+  # =======================
+  # Daisy Token Mapping  (Rocket → Daisy bridge)
+  # =======================
+  variable_mapping:
+    description: "Expose Rocket variables via Daisy tokens so Daisy components use Rocket’s palette."
+    base_layer: |
+      :root[data-theme='rocket'] {
+        /* Daisy tokens expected by components */
+        --p: #3B6B9E;          /* primary */
+        --a: #E9863D;          /* accent  */
+        --b1: #0b0e14;         /* base-100 */
+        --b2: #1E2430;         /* base-200 */
+        --b3: #2A2F3A;         /* base-300 */
+        --n:  #2A2F3A;         /* neutral */
+        --in: #4E8BC9;         /* info    */
+        --su: #9CCF3D;         /* success */
+        --wa: #D8A13D;         /* warning */
+        --er: #CF5C5C;         /* error   */
+
+        /* Rocket extensions (visual physics) */
+        --glass-blur: 40px;
+        --glass-opacity: 0.06;
+        --glass-border: rgba(255,255,255,0.14);
+        --text: #EEF3F8;
+        --muted: #A9B5C4;
+
+        /* Rocket raw palette (optional mirror for internal use) */
+        --bg1: var(--b1);
+        --bg2: var(--b2);
+        --primary: var(--p);
+        --accent: var(--a);
+
+        /* Depth + motion */
+        --shadow-main: 0 20px 60px rgba(0,0,0,.45);
+        --shadow-hover: 0 28px 70px rgba(0,0,0,.65);
+        --curve: cubic-bezier(.4,0,.2,1);
+      }
+
+  # =======================
+  # Tailwind 4.1 config (ESM)
+  # =======================
+  tailwind_config_ts: |
+    import type { Config } from "tailwindcss"
+    import daisyui from "daisyui"
+
+    export default {
+      content: ["./index.html"],
+      theme: {
+        extend: {
+          transitionTimingFunction: { rocket: "cubic-bezier(.4,0,.2,1)" },
+        },
+      },
+      plugins: [daisyui],
+      daisyui: {
+        themes: [
+          {
+            rocket: {
+              primary:   "var(--p)",
+              secondary: "var(--n)",
+              accent:    "var(--a)",
+              neutral:   "var(--n)",
+              "base-100":"var(--b1)",
+              "base-200":"var(--b2)",
+              "base-300":"var(--b3)",
+              info:      "var(--in)",
+              success:   "var(--su)",
+              warning:   "var(--wa)",
+              error:     "var(--er)",
+            },
+          },
+          "dark", "light"
+        ],
+        logs: false,
+      },
+    } satisfies Config
+
+  # =======================
+  # input.css (compiled) — Rocket overrides over Daisy
+  # =======================
+  input_css: |
+    @tailwind base;
+    @tailwind components;
+    @tailwind utilities;
+
+    @layer base {
+      :root[data-theme='rocket'] {
+        /* (see variable_mapping.base_layer for all tokens) */
+      }
+
+      html, body {
+        background: radial-gradient(1200px 800px at 20% 0%, var(--b1), var(--b2));
+        color: var(--text);
+        font-family: "Inter", system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        scroll-behavior: smooth;
+      }
+
+      @keyframes bgDrift { 0%{background-position:0 0} 100%{background-position:100% 70%} }
+    }
+
+    @layer components {
+      /* Background wrapper with subtle drift */
+      .rocket-bg {
+        background: radial-gradient(1400px 900px at 20% 0%, var(--b1), var(--b2));
+        background-size: 150% 150%;
+        animation: bgDrift 60s ease-in-out infinite alternate;
+      }
+
+      /* === Daisy overrides === */
+      [data-theme="rocket"] .card {
+        background: linear-gradient(180deg, rgba(255,255,255,var(--glass-opacity)), rgba(255,255,255,0.02));
+        border: 1px solid var(--glass-border);
+        border-radius: 1.5rem;
+        backdrop-filter: blur(var(--glass-blur)) brightness(.96);
+        box-shadow: var(--shadow-main);
+        transition: all .45s var(--curve);
+      }
+      [data-theme="rocket"] .card:hover { transform: translateY(-8px); box-shadow: var(--shadow-hover); }
+
+      [data-theme="rocket"] .btn {
+        border: 1px solid var(--glass-border);
+        border-radius: 1rem;
+        background: rgba(255,255,255,var(--glass-opacity));
+        color: var(--text);
+        backdrop-filter: blur(var(--glass-blur)) brightness(.98);
+        box-shadow: var(--shadow-main);
+        transition: all .3s var(--curve);
+      }
+      [data-theme="rocket"] .btn:hover { transform: translateY(-3px); filter: brightness(1.05); box-shadow: var(--shadow-hover); }
+
+      [data-theme="rocket"] .btn-primary {
+        background: linear-gradient(180deg, var(--p), color-mix(in srgb, var(--p) 70%, #000 30%));
+      }
+      [data-theme="rocket"] .btn-accent {
+        background: linear-gradient(180deg, var(--a), color-mix(in srgb, var(--a) 70%, #000 30%));
+      }
+
+      [data-theme="rocket"] .input, [data-theme="rocket"] .textarea {
+        background: rgba(255,255,255,.04);
+        border: 1px solid var(--glass-border);
+        color: var(--text);
+        backdrop-filter: blur(var(--glass-blur)) brightness(.98);
+        transition: all .25s var(--curve);
+      }
+      [data-theme="rocket"] .input:focus, [data-theme="rocket"] .textarea:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px var(--a);
+      }
+
+      /* Section blur activation */
+      .rocket-section {
+        position: relative; min-height: 100vh;
+        display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
+        background: linear-gradient(120deg, var(--b1), var(--b2));
+        transition: background .9s var(--curve);
+      }
+      .rocket-section::before {
+        content: ""; position: absolute; inset: 0;
+        backdrop-filter: blur(var(--glass-blur)) brightness(.92);
+        opacity: 0; transition: opacity .9s var(--curve);
+      }
+      .rocket-section.active::before { opacity: .35; }
+
+      .rocket-heading {
+        font-weight: 700; letter-spacing: .5px;
+        font-size: clamp(2.5rem, 5vw, 4.5rem);
+        text-shadow: 0 3px 22px rgba(0,0,0,.4);
+        background: linear-gradient(90deg, var(--a), var(--p));
+        -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+      }
+      .rocket-subtext { font-size: 1.15rem; opacity: .9; max-width: 800px; }
+    }
+
+    @layer utilities {
+      .hover-lift { transition: transform .35s var(--curve); }
+      .hover-lift:hover { transform: translateY(-6px); }
+    }
+
+  # =======================
+  # HTML usage (minimal)
+  # =======================
+  html_usage: |
+    <!-- index.html -->
+    <html lang="en" data-theme="rocket">
+      <head>
+        <link href="output.css" rel="stylesheet">
+      </head>
+      <body class="rocket-bg min-h-screen text-base-content">
+        <section class="rocket-section">
+          <h1 class="rocket-heading">Clarity Designs Itself</h1>
+          <p class="rocket-subtext">Daisy structure, Rocket skin, Tailwind utilities.</p>
+
+          <div class="mt-8 flex gap-3 justify-center flex-wrap">
+            <button class="btn btn-primary">Primary</button>
+            <button class="btn btn-accent">Accent</button>
+            <button class="btn">Neutral</button>
+          </div>
+
+          <div class="mt-10 grid md:grid-cols-3 gap-6 px-6 w-full max-w-5xl">
+            <div class="card p-6">
+              <h3 class="text-xl font-semibold mb-2">Card</h3>
+              <p class="opacity-80">Glassy, blurred, luminous.</p>
+            </div>
+            <div class="card p-6">
+              <h3 class="text-xl font-semibold mb-2">Input</h3>
+              <input class="input input-bordered w-full" placeholder="Type here..." />
+            </div>
+            <div class="card p-6">
+              <h3 class="text-xl font-semibold mb-2">Modal (Daisy)</h3>
+              <button class="btn btn-primary" onclick="document.getElementById('m').showModal()">Open</button>
+              <dialog id="m" class="modal">
+                <form method="dialog" class="modal-box">
+                  <h3 class="font-bold text-lg mb-2">Rocket Modal</h3>
+                  <p class="mb-4">Styled by Rocket variables.</p>
+                  <button class="btn">Close</button>
+                </form>
+              </dialog>
+            </div>
+          </div>
+        </section>
+      </body>
+    </html>
+
+  # =======================
+  # Visual governance (Do / Don’t)
+  # =======================
+  do:
+    - "Use Daisy components (`btn`, `card`, `input`, `modal`) for structure + a11y."
+    - "Let Rocket variables drive *all* colors, shadows, blur, and gradients."
+    - "Keep gradients + blur subtle; opacity 0.04–0.12; blur ≥ 40px."
+    - "Use IntersectionObserver to toggle `.active` on sections for velvet bloom."
+    - "Commit to compiled Tailwind build for any themed environment."
+
+  dont:
+    - "Don’t use Tailwind color utilities (`bg-blue-500`, `text-white`) for theme surfaces."
+    - "Don’t hard-code inline colors in HTML styles."
+    - "Don’t rely on Tailwind CDN for production theming (no config, no overrides)."
+    - "Don’t use pure black/white; always use graphite spectrum."
+    - "Don’t stack multiple accent tones in one region."
+
+  # =======================
+  # Verification checklist
+  # =======================
+  qa_checklist:
+    - "Open compiled page → Cards and buttons show glass + 40px blur."
+    - "Switch `data-theme` and see all Daisy components recolor instantly."
+    - "No element contains a literal hex in HTML."
+    - "Background drifts subtly; text remains legible (AA)."
+    - "Focus rings visible and consistent with Rocket accent."
+
+  # =======================
+  # Migration strategy (from CDN to compiled)
+  # =======================
+  migration:
+    - "Create `input.css`, paste Rocket overrides."
+    - "Create `tailwind.config.ts` (ESM), register Daisy + Rocket theme."
+    - "Run: `npx tailwindcss -i ./input.css -o ./output.css --watch`."
+    - "Replace CDN link with `<link href='output.css'>`."
+    - "Refactor HTML to remove hard-coded color utilities; use Daisy classes only."
+
+  # =======================
+  # Next Steps (actionable)
+  # =======================
+  next_steps:
+    - "Add a ThemeSelector component that modifies `data-theme` and CSS vars at runtime."
+    - "Integrate your YAML theme viewer/exporter (serializing `--p/--a/--b1..`)."
+    - "Create a Rocket design-token pack (JSON/YAML) to sync with apps/Figma."
+    - "Write visual regression tests (Playwright) to prevent utility-class leaks."
+    - "Document a ‘No-inline-color’ lint rule for PRs (ESLint stylelint plugin)."
+
+
+
+
+
+
+
+
+
+Got it. Here’s your **Rocket + Daisy Starter Blueprint**, fully processed through the internal Blueprint engine so it’s clean, semantic, and production-ready.
+This version is **AI-safe**, **designer-friendly**, and **developer-simple** — one theme file, instant clarity.
+
+---
+
+```yaml
+blueprint:
+  title: "Rocket + Daisy Starter Framework"
+  version: "1.0"
+  archetype: "The Unified Theme Layer"
+  essence: "A single DaisyUI override that turns any site into Rocket clarity."
+
+  # ===============================
+  # 🧭 PURPOSE
+  # ===============================
+  purpose: >
+    Establish a single, elegant theming system built on DaisyUI components and
+    Tailwind utilities, where *all Rocket styling*—color, glass, gradients, and motion—
+    is controlled from one override file (`rocket.css`).
+    No complex build, no developer friction. AI or humans can safely modify one file
+    to restyle the entire interface.
+
+  motto: "One file. Infinite moods."
+
+  # ===============================
+  # ⚙️ SYSTEM STACK
+  # ===============================
+  system:
+    foundation: "TailwindCSS 4.1"
+    ui_layer: "DaisyUI 4+"
+    visual_layer: "Rocket Blueprint (rocket.css)"
+    architecture: "Daisy handles structure · Rocket handles soul"
+    files:
+      - "index.html — base layout using Daisy components"
+      - "rocket.css — the single Rocket override file"
+      - "output.css — generated bundle, do not edit"
+    usage:
+      - "All color, light, and motion updates occur inside rocket.css."
+      - "AI modifies CSS variables to generate instant new themes."
+      - "No need to touch HTML or Tailwind config for visual changes."
+
+  # ===============================
+  # 🎨 ROCKET THEME OVERRIDE
+  # ===============================
+  theme_override:
+    filename: "rocket.css"
+    overview: >
+      DaisyUI uses CSS variables (e.g., --p, --a, --b1) to theme components.
+      Rocket overrides these tokens with cinematic color, blur, and depth.
+      Edit these values to transform every Daisy component globally.
+
+    content: |
+      @layer base {
+        :root[data-theme='rocket'] {
+          /* ===== Core Color Tokens ===== */
+          --p: #3B6B9E;    /* Primary – clarity blue */
+          --a: #E9863D;    /* Accent – energetic orange */
+          --b1: #0B0E14;   /* Base – graphite dark */
+          --b2: #1E2430;   /* Depth – secondary graphite */
+          --b3: #2A2F3A;   /* Surface – panel tone */
+          --n:  #2A2F3A;   /* Neutral / shadows */
+          --text:   #EEF3F8;
+          --muted:  #A9B5C4;
+
+          /* ===== Rocket Visual Physics ===== */
+          --glass-blur: 40px;
+          --glass-opacity: 0.06;
+          --glass-border: rgba(255,255,255,0.14);
+          --shadow-main: 0 20px 60px rgba(0,0,0,.45);
+          --shadow-hover: 0 28px 70px rgba(0,0,0,.65);
+        }
+      }
+
+      @layer components {
+        /* === Global Rocket Finish === */
+        [data-theme='rocket'] .card,
+        [data-theme='rocket'] .btn,
+        [data-theme='rocket'] .input {
+          backdrop-filter: blur(var(--glass-blur)) brightness(.96);
+          background: rgba(255,255,255,var(--glass-opacity));
+          border: 1px solid var(--glass-border);
+          box-shadow: var(--shadow-main);
+          transition: all .3s cubic-bezier(.4,0,.2,1);
+        }
+
+        [data-theme='rocket'] .btn:hover {
+          transform: translateY(-3px);
+          filter: brightness(1.05);
+          box-shadow: var(--shadow-hover);
+        }
+
+        [data-theme='rocket'] .card:hover {
+          transform: translateY(-6px);
+          box-shadow: var(--shadow-hover);
+        }
+      }
+
+  # ===============================
+  # 🧩 AI / DESIGNER INSTRUCTIONS
+  # ===============================
+  ai_guidance:
+    description: >
+      AI models can directly edit the variables inside `:root[data-theme='rocket']`
+      to generate new visual moods.
+      These updates instantly propagate through all Daisy components.
+
+    safe_to_edit:
+      - "--p" (primary color)
+      - "--a" (accent)
+      - "--b1–b3" (background layers)
+      - "--glass-opacity"
+      - "--glass-blur"
+      - "--shadow-main/hover"
+
+    do_not_edit:
+      - Structural Tailwind utilities
+      - Daisy component classes
+
+    reasoning:
+      - "Warm mood → increase --a saturation, lighten --b2."
+      - "Cinematic mood → increase --glass-blur to 60px, lower contrast."
+      - "Premium feel → blend brass accent (#D8A13D) and soft graphite base."
+
+  # ===============================
+  # ✅ QA / GOVERNANCE
+  # ===============================
+  governance:
+    validation:
+      - "No hard-coded colors in HTML."
+      - "All visuals route through rocket.css variables."
+      - "Avoid pure black/white; use graphite spectrum."
+      - "Maintain WCAG AA text contrast."
+    testing:
+      - "Open index.html with data-theme='rocket' → all Daisy components inherit Rocket style."
+      - "Adjust any variable in rocket.css → instant global change."
+    motto: "Override once, style forever."
+```
+
+---
+
+### 🧠 How to use it
+
+1. **Install Tailwind + DaisyUI** (once).
+2. Add this single file `rocket.css`.
+3. Use Daisy components (`btn`, `card`, `input`, etc.) in your HTML.
+4. When you (or AI) change a color or blur value in `rocket.css`, everything updates.
+
+That’s your **Rocket + Daisy Starter System** — one file, one look, total clarity.
